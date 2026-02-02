@@ -2,6 +2,8 @@ package com.example.boardv1.board;
 
 import java.sql.Timestamp;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,7 +29,8 @@ public class Board {
     private String title;
 
     private String content;
-
+    
+    @CreationTimestamp
     private Timestamp createdAt;
 
     
