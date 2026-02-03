@@ -11,10 +11,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 //리플렉션은 세터가 없어도 프라이베이트 객체에 접근이 가능함
-@Data
+@Getter
+@Setter
 @NoArgsConstructor // object mapping을 hibernate가 할때 디폴트 생성자를 new한다.
 @Entity
 @Table(name = "user_tb")
@@ -30,5 +33,14 @@ public class User {
     
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @Override
+    public String toString() {
+        return "User [id=" + id + ", username=" + username + ", password=" + password + ", email=" + email
+                + ", createdAt=" + createdAt + "]";
+    }
+
+    
+    
 }
 

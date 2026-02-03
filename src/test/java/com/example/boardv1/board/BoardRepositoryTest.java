@@ -1,6 +1,7 @@
 package com.example.boardv1.board;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 
 @Import(BoardRepository.class)
 @DataJpaTest // EntityManger가 ioc에 등록됨
@@ -35,6 +37,19 @@ public class BoardRepositoryTest {
         System.out.println("===after persist");
         System.out.println(board);
     }
+
+    public Optional<Board> findByIdJoinUser(int id){
+        
+        Query query = em.createQuery("select b from Board b join fetch b.user where b.id = :id",Board.class); // 조인 쿼리
+        query.setParameter("id", id);
+        try {
+            Board board = (Board) query.getSingleResult();
+            return Optional.of(board);
+        } catch (Exception e) {
+            return Optional.ofNullable(null);
+        }
+        }
+
 
     @Test
     public void findById_test() {
@@ -82,7 +97,7 @@ public class BoardRepositoryTest {
         // given
         int id = 1;
         Board board = boardRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없어요요"));
+                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없어요"));
 
         // when
         board.setTitle("title1-update");
@@ -107,6 +122,17 @@ public class BoardRepositoryTest {
         boardRepository.findById(id);
         em.clear();
         boardRepository.findById(id);
+    }
+
+    @Test
+    public void orm_Test(){
+        int id = 1;
+
+
+    Board board = boardRepository.findById(id).get();
+    System.out.println("board->user->id : "+board.getUser().getId());
+    System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    System.out.println("board->user->id : "+board.getUser().getUsername());
     }
 
 }
