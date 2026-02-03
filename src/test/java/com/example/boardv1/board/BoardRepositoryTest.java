@@ -5,16 +5,15 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
-import org.springframework.context.annotation.Import; //import한번에 하는법 alt shift O
+import org.springframework.context.annotation.Import;
 
 import jakarta.persistence.EntityManager;
 
-@Import(BoardRepository.class) // 단위테스트 : 내가 필요한거만 띄워서 테스트 해보는것
-@DataJpaTest // EntityManager가 ioc에 등록됨
-
+@Import(BoardRepository.class)
+@DataJpaTest // EntityManger가 ioc에 등록됨
 public class BoardRepositoryTest {
 
-    @Autowired // 어노테이션 DI기법
+    @Autowired // 어노테이션 DI 기법
     private BoardRepository boardRepository;
 
     @Autowired
@@ -27,22 +26,26 @@ public class BoardRepositoryTest {
         board.setTitle("title7");
         board.setContent("content7");
         System.out.println("===before persist");
-        System.out.println(board.toString());
+        System.out.println(board);
+
         // when
         boardRepository.save(board);
 
-        // eye (Board객체가 DB와 동기화 됌)
+        // eye (board객체가 DB데이터와 동기화 되었음.)
         System.out.println("===after persist");
-        System.out.println(board.toString());
+        System.out.println(board);
     }
 
     @Test
     public void findById_test() {
         // given
         int id = 1;
+
         // when
-        Board board = boardRepository.findById(id);
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없어요"));
         // boardRepository.findById(1);
+
         // eye
         System.out.println(board);
     }
@@ -53,6 +56,7 @@ public class BoardRepositoryTest {
 
         // when
         List<Board> list = boardRepository.findAll();
+
         // eye
         for (Board board : list) {
             System.out.println(board);
@@ -60,31 +64,25 @@ public class BoardRepositoryTest {
     }
 
     @Test
-    public void findAllV2_test() {
+    public void delete_test() {
         // given
+        int id = 1;
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없어요"));
 
         // when
-        boardRepository.findAllV2();
-        // eye
-    }
-
-    @Test
-    public void Delete_test() {
-        // given
-        Board board = boardRepository.findById(1);
-
-       
-        // when
-        boardRepository.delete(board); 
+        boardRepository.delete(board);
 
         // eye
-        em.flush(); //예약된 쿼리를 만드는거
-
+        em.flush();
     }
+
     @Test
     public void update_test() {
         // given
-        Board board = boardRepository.findById(1);
+        int id = 1;
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없어요요"));
 
         // when
         board.setTitle("title1-update");
@@ -99,15 +97,16 @@ public class BoardRepositoryTest {
             System.out.println(b);
         }
     }
+
     @Test
-    public void findByIdV2_test(){
-        //given
+    public void findByIdV2_test() {
+        // given
         int id = 1;
-        //when
+
+        // when
         boardRepository.findById(id);
-        em.clear(); 
+        em.clear();
         boardRepository.findById(id);
-        //eye
-       
     }
+
 }
