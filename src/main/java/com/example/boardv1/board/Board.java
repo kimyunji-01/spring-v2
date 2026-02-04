@@ -25,8 +25,8 @@ import lombok.Setter;
 @Getter // getter/setter/toString
 @Setter
 @Entity // 해당 어노테이션을 보고, 컴포넌트 스캔 후, 데이터 베이스를 생성한다
-@Table(name="board_tb")
-public class Board { //user 1,board N  
+@Table(name = "board_tb")
+public class Board { // user 1,board N
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,11 +35,11 @@ public class Board { //user 1,board N
     private String title;
 
     private String content;
- 
-    //private Integer userId;
+
+    // private Integer userId;
     @ManyToOne(fetch = FetchType.EAGER) // 포린키 만들기 디폴트는 Eager
     private User user;
-    
+
     @CreationTimestamp
     private Timestamp createdAt;
 
@@ -49,6 +49,4 @@ public class Board { //user 1,board N
                 + createdAt + "]";
     }
 
-    
-    
 }

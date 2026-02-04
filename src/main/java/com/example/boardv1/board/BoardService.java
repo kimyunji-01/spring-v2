@@ -5,28 +5,49 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.boardv1.user.User;
+
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
+//책임 : 트렌젝션 관리, DTO만들기, 권한 체크(DB정보가 필요하니까까)
 @RequiredArgsConstructor
 @Service
 public class BoardService {
 
     private final BoardRepository boardRepository;
+    private final HttpSession session;
 
     public List<Board> 게시글목록() {
         return boardRepository.findAll();
     }
 
-    public Board 상세보기(int id) {
-        return boardRepository.findById(id)
+    public Board 수정폼게시글정보(int id, Integer sessionUserId) { // 댓글 정보도 들어와야함
+        Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없어요"));
+
+        if (sessionUserId != board.getUser().getId())
+            throw new RuntimeException("수정할 권한이 없습니다");
+        return board;
+    }
+
+    public BoardResponse.DetailDTO 상세보기(int id, Integer sessionUserId) {
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없어요"));
+        return new BoardResponse.DetailDTO(board, sessionUserId);
     }
 
     @Transactional // update, delete, insert 할때 붙이세요!!
-    public void 게시글수정(int id, String title, String content) {
-        //
+    public void 게시글수정(int id, String title, String content, Integer sessionUserId) {
+
         Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("수정할 게시글을 찾을 수 없어요"));
+
+                if (sessionUserId != board.getUser().getId())
+                    throw new RuntimeException("수정할 권한이 없습니다");
+        
+          
+
         board.setTitle(title);
         board.setContent(content);
     }
@@ -36,6 +57,7 @@ public class BoardService {
     @Transactional
     public void 게시글쓰기(String title, String content) {
         // 1. 비영속 객체
+           
         Board board = new Board();
         board.setTitle(title);
         board.setContent(content);
@@ -49,10 +71,15 @@ public class BoardService {
     }
 
     @Transactional
-    public void 게시글삭제(int id) {
+    public void 게시글삭제(int id, int sessionUserId) {
         // 영속화
         Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("삭제할 게시글을 찾을 수 없어요"));
+
+        // 권한 체크
+        if (sessionUserId != board.getUser().getId())
+            throw new RuntimeException("삭제할 권한이 없습니다");
+
         boardRepository.delete(board);
     } // 자동 flush
 
