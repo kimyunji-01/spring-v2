@@ -30,7 +30,8 @@
         <!-- 댓글등록 -->
         <div class="card-body">
             <form action="/replies/save" method="post">
-                <textarea class="form-control" rows="2" name="comment"></textarea>
+            <input type="hidden" name="boardId" value="{{model.id}}">
+                <textarea class="form-control" rows="2" name="comment" id ="comment"></textarea>
                 <div class="d-flex justify-content-end">
                 <button class="btn btn-secondary mt-1">                        
                         댓글등록    
@@ -44,29 +45,49 @@
             <b>댓글리스트</b>
         </div>
         <div class="list-group">
+
+        {{#model.replies}}
             <!-- 댓글아이템 -->
             <div class="list-group-item d-flex justify-content-between align-items-center">
                 <div class="d-flex">
-                    <div class="px-1 me-1 bg-secondary text-white rounded">익명</div>
-                    <div>댓글 내용2</div>
+                    <div class="px-1 me-1 bg-secondary text-white rounded">{{replyUsername}}</div>
+                    <div>{{comment}}</div>
                 </div>
-                <form action="/replies/1/delete" method="post">
+
+                {{#isReplyOwner}}
+                <form action="/replies/{{id}}/delete?boardId={{model.id}}" method="post">
                     <button class="btn">🗑</button>
                 </form>
+                {{/isReplyOwner}}
+                
             </div>
-            <!-- 댓글아이템 -->
-            <div class="list-group-item d-flex justify-content-between align-items-center">
-                <div class="d-flex">
-                    <div class="px-1 me-1 bg-secondary text-white rounded">익명</div>
-                    <div>댓글 내용1</div>
-                </div>
-                <form action="/replies/1/delete" method="post">
-                    <button class="btn">🗑</button>
-                </form>
-            </div>
+        {{/model.replies}}
         </div>
     </div>
 </div>
+{{^sessionUser}}
+<script>
+
+    // 1. querySelector를 사용하여 id가 comment인 요소를 선택
+    const commentInput = document.querySelector('#comment');
+
+    // 2. 해당 요소에 클릭(click) 이벤트 리스너 추가
+    commentInput.addEventListener('click', function() {
+        
+        // Mustache 문법을 이용해 로그인 여부 확인 (세션 정보가 없으면 false)
+        const isLogin = {{#sessionUser}}true{{/sessionUser}}{{^sessionUser}}false{{/sessionUser}};
+
+        if (!isLogin) {
+            // 3. 로그인이 되어 있지 않을 경우 Alert 실행
+            alert("로그인이 필요합니다.");
+            
+            // 추가: 클릭 시 바로 키보드가 올라오거나 입력되는 것을 방지
+            commentInput.blur();
+        }
+    });
+
+</script>
+{{/sessionUser}}
 
 </body>
 </html>

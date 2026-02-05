@@ -1,9 +1,12 @@
 package com.example.boardv1.board;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.example.boardv1.reply.Reply;
 import com.example.boardv1.user.User;
 
 import jakarta.persistence.Entity;
@@ -12,6 +15,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.Getter;
@@ -39,6 +44,11 @@ public class Board { // user 1,board N
     // private Integer userId;
     @ManyToOne(fetch = FetchType.EAGER) // 포린키 만들기 디폴트는 Eager
     private User user;
+
+    @OneToMany(mappedBy = "board", fetch = FetchType.EAGER) //테이블에 영향 안미침 걍 조회를 위한
+    @OrderBy("id DESC")
+    private List<Reply> replies = new ArrayList<>();
+
 
     @CreationTimestamp
     private Timestamp createdAt;
